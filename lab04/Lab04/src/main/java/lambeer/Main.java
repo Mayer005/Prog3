@@ -1,4 +1,4 @@
-package org.example;
+package lambeer;
 
 import java.io.*;
 import java.util.*;
@@ -7,7 +7,25 @@ import java.util.*;
 public class Main{
 
     public static ArrayList<Beer> sorok = new ArrayList<>();
+    private static Map<String, Command> commands = new HashMap<>();
+    public static Map<String, Comparator<Beer>> comps = new HashMap<>();
+
+    static {
+        comps.put("name", Comparator.comparing(Beer::getName));
+        comps.put("strength", Comparator.comparingDouble(Beer::getStrength));
+        comps.put("style", Comparator.comparing(Beer::getStyle));
+    }
+
     public static void main(String[] args) {
+        commands.put("add", Main::add);
+        commands.put("list", Main::list);
+        commands.put("exit", Main::exit);
+        commands.put("load", Main::load);
+        commands.put("save", Main::save);
+        commands.put("search", Main::search);
+        commands.put("find", Main::find);
+        commands.put("delete", Main::delete);
+
         String[] cmd;
         Scanner sc = new Scanner(System.in);
         String oneline = "";
@@ -16,17 +34,15 @@ public class Main{
         while(true) {
             oneline = sc.nextLine();
             cmd = oneline.split(" ");
-            switch (cmd[0]) {
-                case "add" -> add(cmd);
-                case "exit" -> System.exit(0);
-                case "list" -> list(cmd);
-                case "load" -> load(cmd);
-                case "save" -> save(cmd);
-                case "search" -> search(cmd);
-                case "find" -> find(cmd);
-                case "delete" -> delete(cmd);
+            String commandName = cmd[0];
+            Command command = commands.get(commandName);
+            if(command == null) {
+                System.out.println("'" + commandName + "' egy nem létező parancs");
+            } else {
+                command.execute(cmd);
             }
         }
+
     }
 
     protected static void save(String[] cmd) {
@@ -42,6 +58,11 @@ public class Main{
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    protected static void exit(String[] cmd) {
+        System.out.println("Kilépés...");
+        System.exit(0);
     }
 
     protected static void load(String[] cmd) {
@@ -60,32 +81,21 @@ public class Main{
     }
 
     protected static void list(String[] cmd) {
+
+
         if (cmd.length > 2) {
             System.out.println("A 'list' helyes használata: list [argumentum]");
         } else if (cmd.length == 2){
-            switch (cmd[1]) {
-                case "name":
-                    Collections.sort(sorok, new NameComparator());
-                    for(Beer b : sorok){
-                        System.out.println(b);
-                    }
-                    break;
-                case "style":
-                    Collections.sort(sorok, new StyleComparator());
-                    for(Beer b : sorok){
-                        System.out.println(b);
-                    }
-                    break;
-                case "strength":
-                    Collections.sort(sorok, new StrengthComparator());
-                    for(Beer b : sorok){
-                        System.out.println(b);
-                    }
-                    break;
-                default:
-                    System.out.println("Nem jó argumentumot adtál meg. Lehetséges opciók: 'name', 'style', 'strength'");
+            Comparator<Beer> cmp = comps.getOrDefault(cmd[1], comps.get("name"));
+            sorok.sort(cmp);
+
+            for(Beer b : sorok) {
+                System.out.println(b);
             }
         } else {
+            Comparator<Beer> cmp = comps.getOrDefault("name", comps.get("name"));
+            sorok.sort(cmp);
+
             for (Beer temp : sorok) {
                 System.out.println(temp);
             }

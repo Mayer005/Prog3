@@ -1,4 +1,4 @@
-package org.example;
+package lambeer;
 
 import java.util.*;
 

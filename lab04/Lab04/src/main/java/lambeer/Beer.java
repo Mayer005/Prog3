@@ -1,4 +1,4 @@
-package org.example;
+package lambeer;
 
 import java.io.Serializable;
 
@@ -13,6 +13,7 @@ public class Beer implements Serializable{
         this.strength = strength;
     }
 
+    @Override
     public String toString() {
         return "Név: "+name + ", jelleg: " + style + ", alkoholfok: " + strength;
     }
