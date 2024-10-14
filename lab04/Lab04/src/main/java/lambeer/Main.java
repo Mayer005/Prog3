@@ -10,10 +10,18 @@ public class Main{
     private static Map<String, Command> commands = new HashMap<>();
     public static Map<String, Comparator<Beer>> comps = new HashMap<>();
 
+    public static List<String> lparams = new LinkedList<>();
+
+
     static {
+
         comps.put("name", Comparator.comparing(Beer::getName));
         comps.put("strength", Comparator.comparingDouble(Beer::getStrength));
         comps.put("style", Comparator.comparing(Beer::getStyle));
+
+        lparams.add("name");
+        lparams.add("strength");
+        lparams.add("style");
     }
 
     public static void main(String[] args) {
@@ -86,19 +94,31 @@ public class Main{
         if (cmd.length > 2) {
             System.out.println("A 'list' helyes használata: list [argumentum]");
         } else if (cmd.length == 2){
-            Comparator<Beer> cmp = comps.getOrDefault(cmd[1], comps.get("name"));
-            sorok.sort(cmp);
+            lparams.remove(cmd[1]);
+            lparams.addFirst(cmd[1]);
 
-            for(Beer b : sorok) {
-                System.out.println(b);
-            }
+            combine();
         } else {
-            Comparator<Beer> cmp = comps.getOrDefault("name", comps.get("name"));
-            sorok.sort(cmp);
+            combine();
+        }
+    }
 
-            for (Beer temp : sorok) {
-                System.out.println(temp);
+    private static void combine() {
+        Comparator<Beer> combinedCmp = (b1, b2) -> {
+            for(String temp : lparams) {
+                int result = comps.get(temp).compare(b1, b2);
+                if(result != 0){
+                    return result;
+                }
             }
+            return 0;
+        };
+
+
+        sorok.sort(combinedCmp);
+
+        for(Beer b : sorok) {
+            System.out.println(b);
         }
     }
 
